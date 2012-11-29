@@ -19,6 +19,8 @@ import logging
 import os, sys
 import argparse
 from argparse import RawTextHelpFormatter
+from urlparse import urlsplit
+import urllib2
 
 logger = logging.getLogger('picasa-backup')
 
@@ -68,6 +70,28 @@ def create_album(album):
     else:
         print err
         return False
+        
+def url2name(url):
+    return os.path.basename(urlsplit(url)[2])
+
+def download(url, localFileName = None):
+    localName = url2name(url)
+    req = urllib2.Request(url)
+    r = urllib2.urlopen(req)
+    if r.info().has_key('Content-Disposition'):
+        # If the response has Content-Disposition, we take file name from it
+        localName = r.info()['Content-Disposition'].split('filename=')[1]
+        if localName[0] == '"' or localName[0] == "'":
+            localName = localName[1:-1]
+    elif r.url != url: 
+        # if we were redirected, the real file name we take from the final URL
+        localName = url2name(r.url)
+    if localFileName: 
+        # we can force to save the file as specified name
+        localName = localFileName
+    f = open(localName, 'wb')
+    f.write(r.read())
+    f.close()
 
 def upload_photo(album,photo):
 
@@ -86,21 +110,6 @@ def upload_photo(album,photo):
         return False
 
 
-def download_photo(album,photo):
-
-
-    cmd = ['google', 'picasa','get','--title=%(album)s' % locals(),'--src=%(photo)s' % locals()]
-    cmds = " ".join(cmd)
-    logger.debug('Running: %(cmds)s' % locals())
-    p = subprocess.Popen(cmd, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-
-    out,err=p.communicate()
-
-    if len(err)>0:
-        return True
-    else:
-        print err
-        return False
 
 def get_photos(album):
 
@@ -190,7 +199,7 @@ def main(argv=None):
 
             for k,p in photos.iteritems():
                 if not p['synced'] and p['url']:
-                    print p['url']
+                    download(p['url'],os.path.join(dirname,subdirname,p['name']+"."+p['extension'])
                     logger.info('%(subdirname)s: Downloading %(k)s' % locals())
 
 if __name__ == "__main__":
