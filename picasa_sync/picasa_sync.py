@@ -117,7 +117,7 @@ def get_photos(album):
     photos={}
     for row in reader:
         fileName, fileExtension = os.path.splitext(row[0])
-        photos[fileName]={'name':fileName,'url':row[1],'extension':fileExtension}
+        photos[fileName]={'name':fileName,'url':row[1],'extension':fileExtension,'synced':False}
 
     return photos
 
@@ -165,32 +165,32 @@ def main(argv=None):
                     logger.warning('Could not create %(subdirname)s' % locals())
                     continue
 
-        for dirname2, dirnames2, filenames in os.walk(os.path.join(dirname,subdirname)):
-            num_files=len(filenames)
+            for dirname2, dirnames2, filenames in os.walk(os.path.join(dirname,subdirname)):
+                num_files=len(filenames)
 
-            if num_files != num_photos:
-                logger.warning('%(subdirname)s: local Files %(num_files)d, Web Photos: %(num_photos)s' % locals())
-            for f in filenames:
-                filename, fileExtension = os.path.splitext(f)
-                if filename in photos:
-                    photos[filename]['synced']=True
-                    logger.debug('%(subdirname)s: %(filename)s exists, skipping' % locals())
-                else:
-                    logger.debug('%(subdirname)s: %(filename)s does not exist' % locals())
-                    photos[filename] = {}
-                    if upload_photo(subdirname,os.path.join(dirname,subdirname,f)):
-                        logger.info('%(subdirname)s: Uploaded %(filename)s' % locals())
-                        
+                if num_files != num_photos:
+                    logger.warning('%(subdirname)s: local Files %(num_files)d, Web Photos: %(num_photos)s' % locals())
+                for f in filenames:
+                    filename, fileExtension = os.path.splitext(f)
+                    if filename in photos:
                         photos[filename]['synced']=True
+                        logger.debug('%(subdirname)s: %(filename)s exists, skipping' % locals())
                     else:
+                        logger.debug('%(subdirname)s: %(filename)s does not exist' % locals())
+                        photos[filename] = {}
+                        if upload_photo(subdirname,os.path.join(dirname,subdirname,f)):
+                            logger.info('%(subdirname)s: Uploaded %(filename)s' % locals())
+                        
+                            photos[filename]['synced']=True
+                        else:
 
-                        photos[filename]['synced']=False
-                        logger.warning('%(subdirname)s: Failed to upload %(filename)s' % locals())
+                            photos[filename]['synced']=False
+                            logger.warning('%(subdirname)s: Failed to upload %(filename)s' % locals())
 
             for k,p in photos.iteritems():
                 if not p['synced'] and p['url']:
                     print p['url']
-                    logger.info('%(subdirname)s: Downloading %(filename)s' % locals())
+                    logger.info('%(subdirname)s: Downloading %(k)s' % locals())
 
 if __name__ == "__main__":
 
