@@ -172,6 +172,7 @@ def main(argv=None):
                     logger.warning('%(subdirname)s: local Files %(num_files)d, Web Photos: %(num_photos)s' % locals())
                 for f in filenames:
                     filename, fileExtension = os.path.splitext(f)
+                    filename=filename.replace(',',' ')
                     if filename in photos:
                         photos[filename]['synced']=True
                         logger.debug('%(subdirname)s: %(filename)s exists, skipping' % locals())
