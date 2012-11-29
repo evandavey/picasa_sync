@@ -130,20 +130,20 @@ def main(argv=None):
 
     for dirname, dirnames, filenames in os.walk(photos_path):
         for subdirname in dirnames:
-    	if subdirname in albums:
-    		logger.info('%(subdirname)s album exists!' % locals())
-    		photos=get_photos(subdirname)
-    		num_photos=len(photos)
-    		logger.info('%(subdirname)s: %(num_photos)d existing photos' % locals())
-    	else:
-    		photos={}
-    		num_photos=len(photos)
-    		logger.debug('%(subdirname)s album does not exist' % locals())
-    		if create_album(subdirname):
-    			logger.info('Created album %(subdirname)s' % locals())
-    		else:
-    			logger.warning('Could not create %(subdirname)s' % locals())
-    			continue
+        	if subdirname in albums:
+        		logger.info('%(subdirname)s album exists!' % locals())
+        		photos=get_photos(subdirname)
+        		num_photos=len(photos)
+        		logger.info('%(subdirname)s: %(num_photos)d existing photos' % locals())
+        	else:
+        		photos={}
+        		num_photos=len(photos)
+        		logger.debug('%(subdirname)s album does not exist' % locals())
+        		if create_album(subdirname):
+        			logger.info('Created album %(subdirname)s' % locals())
+        		else:
+        			logger.warning('Could not create %(subdirname)s' % locals())
+        			continue
 
     	for dirname2, dirnames2, filenames in os.walk(os.path.join(dirname,subdirname)):
      	   	num_files=len(filenames)
