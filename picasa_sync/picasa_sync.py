@@ -193,6 +193,7 @@ def main(argv=None):
 
             for k,p in photos.iteritems():
                 if not p['synced'] and p['url']:
+                    download_photo(subdirname,p['filename'])
                     logger.info('%(subdirname)s: Downloading %(k)s' % locals())
 
 if __name__ == "__main__":
